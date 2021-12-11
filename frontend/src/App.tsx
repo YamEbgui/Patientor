@@ -1,53 +1,120 @@
-import React from 'react';
-import { JsxEmit } from 'typescript';
+import { CoursePart } from "./Types";
+import { courseParts } from "./Database";
+import React from "react";
 
-interface CourseParts{
-  name: string,
-  exerciseCount:number
-}
-
-const Header = ({ courseName }: { courseName:string }):JSX.Element => {
+const Header = ({ courseName }: { courseName: string }): JSX.Element => {
   return (
-    <div><h1>{courseName}</h1></div>
-  )
-}
+    <div>
+      <h1>{courseName}</h1>
+    </div>
+  );
+};
 
-const Content = ({ courses }: { courses: CourseParts[]}): JSX.Element => {
-  return (<div>{courses.map((course:CourseParts) => { return <p key={course.name}>{course.name}{course.exerciseCount}</p>}) }</div>)
-}
+const Content = ({ courses }: { courses: CoursePart[] }): JSX.Element => {
+  return (
+    <div>
+      {courses.map((course: CoursePart) => {
+        return <Part key={course.name} coursePart={course} />;
+      })}
+    </div>
+  );
+};
 
-const Total = ({ courses }: { courses: CourseParts[] }): JSX.Element => {
-  return( <p>
-    Number of exercises{" "}
-    {courses.reduce((carry, part) => carry + part.exerciseCount, 0)}
-  </p>)
-}
+const Part = ({
+  coursePart,
+}: {
+  key: string;
+  coursePart: CoursePart;
+}): JSX.Element => {
+  let elementsToShow: JSX.Element;
+  switch (coursePart.type) {
+    case "normal":
+      elementsToShow = (
+        <div>
+          <p>
+            <b>
+              {coursePart.name + " "}
+              {coursePart.exerciseCount}
+            </b>
+            <br />
+            <em>{coursePart.description}</em>
+          </p>
+        </div>
+      );
+      break;
+    case "groupProject":
+      elementsToShow = (
+        <div>
+          <p>
+            <b>
+              {coursePart.name + " "}
+              {coursePart.exerciseCount}
+            </b>
+            <br />
+            {"project exercises " + coursePart.groupProjectCount}
+          </p>
+        </div>
+      );
+      break;
+    case "submission":
+      elementsToShow = (
+        <div>
+          <p>
+            <b>
+              {coursePart.name + " "}
+              {coursePart.exerciseCount}
+            </b>
+            <br />
+            <em>{coursePart.description}</em>
+            <br />
+            <a href={coursePart.exerciseSubmissionLink}>
+              {coursePart.exerciseSubmissionLink}
+            </a>
+          </p>
+        </div>
+      );
+      break;
+    case "special":
+      elementsToShow = (
+        <div>
+          <p>
+            <b>
+              {coursePart.name + " "}
+              {coursePart.exerciseCount}
+            </b>
+            <br />
+            <em>{coursePart.description}</em>
+            <br />
+            {"required skils: " + coursePart.requirements}
+          </p>
+        </div>
+      );
+      break;
+    default:
+      throw "There is a problem with course type!";
+  }
+  return elementsToShow;
+};
+
+const Total = ({ courses }: { courses: CoursePart[] }): JSX.Element => {
+  return (
+    <p>
+      Number of exercises{" "}
+      {courses.reduce((carry, part) => carry + part.exerciseCount, 0)}
+    </p>
+  );
+};
 
 const App = () => {
   const courseName = "Half Stack application development";
-  const data : CourseParts[] = [
-    {
-      name: "Fundamentals",
-      exerciseCount: 10
-    },
-    {
-      name: "Using props to pass data",
-      exerciseCount: 7
-    },
-    {
-      name: "Deeper type usage",
-      exerciseCount: 14
-    }
-  ];
 
   return (
     <div>
-      <Header courseName={"Half Stack application development"} />
-      <Content courses={data} />
-      <Total courses={data}/>
+      <Header courseName={courseName} />
+      <Content courses={courseParts} />
+      <Total courses={courseParts} />
     </div>
   );
 };
 
 export default App;
-
